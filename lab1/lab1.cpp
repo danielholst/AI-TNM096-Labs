@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <queue>
 
 using namespace std;
 
@@ -16,52 +17,68 @@ public:
     vector<int> getBoard() const { return currentState_; }
     //void setBoard(vector<int> newBoard);
     
+    int countH1() const;
+    bool checkBoard() const;
+    
 private:
     vector<int> currentState_;
     State* prevState_;
 };
 
 // returns the number of squares that are in the right place
-int countH1(vector<int> vec)
+int State::countH1() const
 {
     int count = 0;
     for ( int i = 0; i < 9; i++)
     {
-        if ( vec.at(i) == i + 1 )
+        if ( currentState_.at(i) == i + 1 )
             count++;
-        else if ( i == 8 && vec.at(i) == 0 )
+        else if ( i == 8 && currentState_.at(i) == 0 )
             count++;
     }
     
-    cout << count << endl;
     return count;
 }
 
 // check if the board is correct
-bool checkBoard(vector<int> board)
+bool State::checkBoard() const
 {
     vector<int> endBoard { 1, 2, 3, 4, 5, 6, 7, 8, 0 };
     
     for ( int i = 0; i < 9; i++)
     {
-        if ( board.at(i) != endBoard.at(i) )
+        if ( currentState_.at(i) != endBoard.at(i) )
             return false;
     }
     return true;
 }
 
-int main()
+// function to find the best next move
+//vector<int> findBestMove(vector<int> currentBoard) {}
+
+
+// solve the 8 puzzle and find the fastest way to solve it
+bool solve(State state)
 {
-    vector<int> startBoard { 1, 3, 5, 6, 2, 8, 7, 4, 0 };
-    State state { startBoard };
+    cout << "number of correct boards from beginning: " << state.countH1() << endl;
     
-    countH1(state.getBoard());
+    std::queue<State> q;
     
-    if (checkBoard(state.getBoard()))
+    if (state.checkBoard())
         cout << "correct" << endl;
     else
         cout << "not correct board" << endl;
+
+    return true;
     
+}
+
+int main()
+{
+    vector<int> startBoard { 1, 2, 3, 4, 5, 0, 7, 8, 6 };
+    State state { startBoard };
+    
+    solve(state);
     
     return 0;
 }
