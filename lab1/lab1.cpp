@@ -12,8 +12,8 @@ class State
 {
 public:
     State () = default;
-    State ( vector<int> currentState, State* prevState = nullptr )
-            : currentState_(currentState), prevState_(prevState) {}
+    State ( vector<int> currentState, State* prevState = nullptr, int nrOfMoves = 0 )
+            : currentState_(currentState), prevState_(prevState), nrOfMoves_(nrOfMoves) {}
     
     vector<int> getBoard() const { return currentState_; }
     //void setBoard(vector<int> newBoard);
@@ -21,12 +21,16 @@ public:
     bool compare(const State& s) const;
     int getZeroPos() const;
     
+    int getMoves() const { return nrOfMoves_; }
+
+    
     int countH1() const;
     bool checkBoard() const;
     
 private:
     vector<int> currentState_;
     State* prevState_;
+    int nrOfMoves_;
 };
 
 // compare two states
@@ -42,7 +46,6 @@ int State::getZeroPos() const
     {
         if ( currentState_.at(i) == 0 )
         {
-            cout << "0 at pos: " << i << endl;
             return i;
         }
     }
@@ -69,7 +72,12 @@ int State::countH1() const
 bool State::checkBoard() const
 {
     vector<int> endBoard { 1, 2, 3, 4, 5, 6, 7, 8, 0 };
-    
+/*
+    if(  this->compare(State(endBoard)) )
+        cout << "CORRECT" << endl;
+    else
+        cout << "Not correct" << endl;
+  */
     return this->compare(State(endBoard));
 }
 
@@ -120,7 +128,6 @@ vector<int> findMoves(State state)
             break;
             
         default:
-            cout << "error in findMoves" << endl;
             break;
     }
     
@@ -135,15 +142,37 @@ bool solve(State state)
     std::queue<State> q;
     
     q.push(state);
-    //find possible moves
-    possibleMoves = findMoves(q.front());
     
-    printVec(possibleMoves);
-    
-    if (state.checkBoard())
-        cout << "correct" << endl;
-    else
-        cout << "not correct board" << endl;
+    for( int k = 0; k < 10; k++) // temp, change to while (true) when working
+    {
+        State currentState = q.front();
+        q.pop();
+        
+        cout << "=======================" << endl;
+        cout << "0 at pos: " << currentState.getZeroPos() << endl;
+        printVec(currentState.getBoard());
+        
+        // check if correct board
+        if (currentState.checkBoard())
+        {
+            cout << "Found correct board after " << currentState.getMoves() << " iterations" << endl;
+            break;
+        }
+        
+        //find possible moves
+        possibleMoves = findMoves(currentState);
+        cout << "Possible moves: ";
+        printVec(possibleMoves);
+        
+        //add new states to queue
+        for ( auto i : possibleMoves )
+        {
+            vector<int> board = currentState.getBoard();
+            swap(board.at(i), board.at(currentState.getZeroPos()));
+            State newState { board, &currentState, currentState.getMoves()+1 };
+            q.push(newState);
+        }
+    }
 
     return true;
     
@@ -159,7 +188,7 @@ int main()
      * 7 8 6
      */
     
-    State state { startBoard };
+    State state { startBoard, nullptr, 0 };
     
     solve(state);
     
