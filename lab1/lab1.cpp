@@ -13,24 +13,24 @@ class State
 {
 public:
     State () = default;
-    State ( vector<int> currentState, State* prevState = nullptr, int nrOfMoves = 0 )
-            : currentState_(currentState), prevState_(prevState), nrOfMoves_(nrOfMoves) {}
+    State ( vector<int> currentState, int prevZero, int nrOfMoves = 0 )
+            : currentState_(currentState), prevZero_(prevZero), nrOfMoves_(nrOfMoves) {}
     
     vector<int> getBoard() const { return currentState_; }
-    //void setBoard(vector<int> newBoard);
     
     bool compare(const State& s) const;
+    
     int getZeroPos() const;
+    int getPrevZero() const { return prevZero_; }
     
     int getMoves() const { return nrOfMoves_; }
-
     
     int countH1() const;
     bool checkBoard() const;
     
 private:
     vector<int> currentState_;
-    State* prevState_;
+    int prevZero_;
     int nrOfMoves_;
 };
 
@@ -74,14 +74,18 @@ bool State::checkBoard() const
 {
     vector<int> endBoard { 1, 2, 3, 4, 5, 6, 7, 8, 0 };
 
-    return this->compare(State(endBoard));
+    return this->compare(State(endBoard, 0, 0));
 }
 
 // print out values in vector
 void printVec(vector<int> vec)
 {
+    for (auto p=vec.begin(); p!=vec.end(); ++p)
+        std::cout << ' ' << *p;
+    /*
     for (auto i : vec)
         cout << i << " ";
+     */
     cout << endl;
     
 }
@@ -125,7 +129,7 @@ vector<int> findMoves(State state)
             moves = {3,7};
             break;
         case 7:
-            moves = {6,4,8};
+            moves = {4,6,8};
             break;
         case 8:
             moves = {5,7};
@@ -133,6 +137,14 @@ vector<int> findMoves(State state)
             
         default:
             break;
+    }
+    
+    // remove move to previous position
+    if ( state.getMoves() != 0 )
+    {
+        int prevZero = state.getPrevZero();
+        const auto newEnd = remove(moves.begin(), moves.end(), prevZero);
+        moves.erase(newEnd, moves.end());
     }
     
     return moves;
@@ -147,7 +159,7 @@ bool solve(State state)
     
     q.push(state);
     
-    for( int k = 0; k < 10; k++) // temp, change to while (true) when working
+    for( int k = 0; k < 20; k++) // temp, change to while (true) when working
     {
         State currentState = q.top();
         q.pop();
@@ -173,7 +185,7 @@ bool solve(State state)
         {
             vector<int> board = currentState.getBoard();
             swap(board.at(i), board.at(currentState.getZeroPos()));
-            State newState { board, &currentState, currentState.getMoves()+1 };
+            State newState { board, currentState.getZeroPos(), currentState.getMoves()+1 };
             q.push(newState);
         }
     }
@@ -185,14 +197,14 @@ bool solve(State state)
 //main function
 int main()
 {
-    vector<int> startBoard { 1, 2, 3, 4, 5, 6, 0, 7, 8 };
+    vector<int> startBoard { 3, 2, 1, 4, 5, 6, 0, 7, 8 };
     /*
      * 1 2 3
      * 4 5 0
      * 7 8 6
      */
     
-    State state { startBoard, nullptr, 0 };
+    State state { startBoard, 6, 0 };
     
     solve(state);
     
