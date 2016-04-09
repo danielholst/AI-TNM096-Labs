@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <queue>
+#include <functional>
 
 using namespace std;
 
@@ -72,12 +73,7 @@ int State::countH1() const
 bool State::checkBoard() const
 {
     vector<int> endBoard { 1, 2, 3, 4, 5, 6, 7, 8, 0 };
-/*
-    if(  this->compare(State(endBoard)) )
-        cout << "CORRECT" << endl;
-    else
-        cout << "Not correct" << endl;
-  */
+
     return this->compare(State(endBoard));
 }
 
@@ -90,10 +86,18 @@ void printVec(vector<int> vec)
     
 }
 
+// to compare the different states depending on heuristic
+struct cmp
+{
+    bool operator() (State& s1, State& s2)
+    {
+        return (s1.countH1() < s2.countH1());
+    }
+};
+
 // function to find possible moves
 vector<int> findMoves(State state)
 {
-    //find position of empty block
     int pos = state.getZeroPos();
     
     vector<int> moves;
@@ -139,13 +143,13 @@ bool solve(State state)
 {
     cout << "number of correct boards from beginning: " << state.countH1() << endl;
     vector<int> possibleMoves;
-    std::queue<State> q;
+    priority_queue<State, vector<State>, cmp> q;
     
     q.push(state);
     
     for( int k = 0; k < 10; k++) // temp, change to while (true) when working
     {
-        State currentState = q.front();
+        State currentState = q.top();
         q.pop();
         
         cout << "=======================" << endl;
@@ -181,7 +185,7 @@ bool solve(State state)
 //main function
 int main()
 {
-    vector<int> startBoard { 1, 2, 3, 4, 5, 0, 7, 8, 6 };
+    vector<int> startBoard { 1, 2, 3, 4, 5, 6, 0, 7, 8 };
     /*
      * 1 2 3
      * 4 5 0
