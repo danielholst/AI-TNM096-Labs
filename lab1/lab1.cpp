@@ -2,6 +2,7 @@
 #include <vector>
 #include <queue>
 #include <functional>
+#include <math.h>
 
 using namespace std;
 
@@ -26,6 +27,7 @@ public:
     int getMoves() const { return nrOfMoves_; }
     
     int countH1() const;
+    int countManhattan() const;
     bool checkBoard() const;
     
 private:
@@ -69,6 +71,28 @@ int State::countH1() const
     return count;
 }
 
+int State::countManhattan() const
+{
+    int counter = 0;
+    int xPosV, xPosReal;
+    int yPosV, yPosReal;
+    
+    for(int i = 0; i < 9; i++)
+    {
+        xPosV = ((currentState_[i]-1) % 3);
+        yPosV = floor((currentState_[i]-1) / 3);
+        
+        xPosReal = i%3;
+        yPosReal = floor(i/3);
+        if ( currentState_[i] != 0 )
+        {
+            counter += abs(xPosV - xPosReal) + abs(yPosV - yPosReal);
+            //cout << "manhattan: " << i << " : counter: " << counter << endl;
+        }
+    }
+    return counter;
+}
+
 // check if the board is correct
 bool State::checkBoard() const
 {
@@ -80,22 +104,39 @@ bool State::checkBoard() const
 // print out values in vector
 void printVec(vector<int> vec)
 {
-    for (auto p=vec.begin(); p!=vec.end(); ++p)
-        std::cout << ' ' << *p;
-    /*
-    for (auto i : vec)
-        cout << i << " ";
-     */
+    for (int i = 0; i < 9; i++) {
+        cout << vec[i] << " ";
+        
+        if ( (i+1) % 3 == 0)
+            cout << "\n";
+    }
+    
+ 
     cout << endl;
     
 }
 
-// to compare the different states depending on heuristic
-struct cmp
+// to compare the different states depending on heuristic (h1)
+struct cmpH1
 {
     bool operator() (State& s1, State& s2)
     {
-        return (s1.countH1() < s2.countH1());
+        if ( s1.countH1() == s2.countH1() )
+            return s1.getMoves() < s2.getMoves();
+        else
+            return (s1.countH1() < s2.countH1());
+    }
+};
+
+// to compare the different states depending on heuristic (manhattan)
+struct cmpManhattan
+{
+    bool operator() (State& s1, State& s2)
+    {
+        if ( s1.countManhattan() == s2.countManhattan() )
+            return s1.getMoves() < s2.getMoves();
+        else
+            return (s1.countManhattan() > s2.countManhattan());
     }
 };
 
@@ -155,17 +196,18 @@ bool solve(State state)
 {
     cout << "number of correct boards from beginning: " << state.countH1() << endl;
     vector<int> possibleMoves;
-    priority_queue<State, vector<State>, cmp> q;
+    priority_queue<State, vector<State>, cmpManhattan> q;
     
     q.push(state);
     
-    for( int k = 0; k < 20; k++) // temp, change to while (true) when working
+    for( int k = 0; k < 40; k++) // temp, change to while (true) when working
     {
         State currentState = q.top();
         q.pop();
         
         cout << "=======================" << endl;
         cout << "0 at pos: " << currentState.getZeroPos() << endl;
+        cout << "nr of correct blocks: " << currentState.countH1() << endl;
         printVec(currentState.getBoard());
         
         // check if correct board
@@ -177,8 +219,8 @@ bool solve(State state)
         
         //find possible moves
         possibleMoves = findMoves(currentState);
-        cout << "Possible moves: ";
-        printVec(possibleMoves);
+        //cout << "Possible moves: ";
+        //printVec(possibleMoves);
         
         //add new states to queue
         for ( auto i : possibleMoves )
@@ -197,11 +239,12 @@ bool solve(State state)
 //main function
 int main()
 {
-    vector<int> startBoard { 3, 2, 1, 4, 5, 6, 0, 7, 8 };
+  //  vector<int> startBoard { 0, 2, 1, 4, 6, 3, 7, 5, 8 };
+    vector<int> startBoard { 1, 2, 3, 4, 6, 0, 7, 5, 8 };
     /*
      * 1 2 3
-     * 4 5 0
-     * 7 8 6
+     * 4 6 0
+     * 7 5 8
      */
     
     State state { startBoard, 6, 0 };
