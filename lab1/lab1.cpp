@@ -56,16 +56,15 @@ int State::getZeroPos() const
     return 0;
 }
 
-// returns the number of squares that are in the right place
+// returns the number of squares that are not in the right place
 int State::countH1() const
 {
     int count = 0;
     for ( int i = 0; i < 9; i++)
     {
-        if ( currentState_.at(i) == i + 1 )
+        if ( currentState_.at(i) != 0 && currentState_.at(i) != i + 1 )
             count++;
-        else if ( i == 8 && currentState_.at(i) == 0 )
-            count++;
+
     }
     
     return count;
@@ -93,11 +92,39 @@ int State::countManhattan() const
     return counter;
 }
 
+// to compare the different states depending on heuristic (h1)
+struct cmpH1
+{
+    bool operator() (State& s1, State& s2)
+    {
+        int f1 = s1.countH1() + s1.getMoves();
+        int f2 = s2.countH1() + s2.getMoves();
+        if ( f1 == f2 )
+            return f1;
+        else
+            return (f1 > f2);
+    }
+};
+
+// to compare the different states depending on heuristic (manhattan)
+struct cmpManhattan
+{
+    bool operator() (State& s1, State& s2)
+    {
+        int f1 = s1.countManhattan() + s1.getMoves();
+        int f2 = s2.countManhattan() + s2.getMoves();
+        if ( f1 == f2 )
+            return f1;
+        else
+            return (f1 > f2);
+    }
+};
+
 // check if the board is correct
 bool State::checkBoard() const
 {
     vector<int> endBoard { 1, 2, 3, 4, 5, 6, 7, 8, 0 };
-
+    
     return this->compare(State(endBoard, 0, 0));
 }
 
@@ -111,34 +138,10 @@ void printVec(vector<int> vec)
             cout << "\n";
     }
     
- 
+    
     cout << endl;
     
 }
-
-// to compare the different states depending on heuristic (h1)
-struct cmpH1
-{
-    bool operator() (State& s1, State& s2)
-    {
-        if ( s1.countH1() == s2.countH1() )
-            return s1.getMoves() < s2.getMoves();
-        else
-            return (s1.countH1() < s2.countH1());
-    }
-};
-
-// to compare the different states depending on heuristic (manhattan)
-struct cmpManhattan
-{
-    bool operator() (State& s1, State& s2)
-    {
-        if ( s1.countManhattan() == s2.countManhattan() )
-            return s1.getMoves() < s2.getMoves();
-        else
-            return (s1.countManhattan() > s2.countManhattan());
-    }
-};
 
 // function to find possible moves
 vector<int> findMoves(State state)
@@ -194,27 +197,31 @@ vector<int> findMoves(State state)
 // solve the 8 puzzle and find the fastest way to solve it
 bool solve(State state)
 {
-    cout << "number of correct boards from beginning: " << state.countH1() << endl;
+    cout << "number of correct boards from beginning: " << 8 - state.countH1() << endl;
     vector<int> possibleMoves;
-    priority_queue<State, vector<State>, cmpManhattan> q;
-    
+    vector<State> visitedStates;
+    priority_queue<State, vector<State>, cmpH1> q;
+    int leastNrOfMoves = 150;
     q.push(state);
     
-    for( int k = 0; k < 40; k++) // temp, change to while (true) when working
+    while ( !q.empty() )
     {
         State currentState = q.top();
         q.pop();
+        visitedStates.push_back(currentState);
         
-        cout << "=======================" << endl;
-        cout << "0 at pos: " << currentState.getZeroPos() << endl;
-        cout << "nr of correct blocks: " << currentState.countH1() << endl;
-        printVec(currentState.getBoard());
+        //cout << "=======================" << endl;
+        //cout << "0 at pos: " << currentState.getZeroPos() << endl;
+        //cout << "nr of correct blocks: " << currentState.countH1() << endl;
+        //printVec(currentState.getBoard());
         
         // check if correct board
         if (currentState.checkBoard())
         {
+            
             cout << "Found correct board after " << currentState.getMoves() << " iterations" << endl;
             break;
+
         }
         
         //find possible moves
@@ -228,6 +235,16 @@ bool solve(State state)
             vector<int> board = currentState.getBoard();
             swap(board.at(i), board.at(currentState.getZeroPos()));
             State newState { board, currentState.getZeroPos(), currentState.getMoves()+1 };
+            
+            for ( auto i : visitedStates )
+            {
+                if ( i.compare(newState) )
+                {
+                    cout << "hej";
+                    continue;
+                }
+                
+            }
             q.push(newState);
         }
     }
@@ -239,8 +256,8 @@ bool solve(State state)
 //main function
 int main()
 {
-  //  vector<int> startBoard { 0, 2, 1, 4, 6, 3, 7, 5, 8 };
-    vector<int> startBoard { 1, 2, 3, 4, 6, 0, 7, 5, 8 };
+    vector<int> startBoard { 2, 5, 0, 1, 4, 8, 7, 3, 6 };
+    //vector<int> startBoard { 1, 2, 3, 4, 6, 0, 7, 5, 8 };
     /*
      * 1 2 3
      * 4 6 0
