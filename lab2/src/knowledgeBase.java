@@ -2,17 +2,21 @@ import java.util.ArrayList;
 
 public class knowledgeBase
 {
-    private ArrayList<Klause> kb;
+    private ArrayList<Clause> kb;
+
+    // Constructor
     public knowledgeBase()
     {
-        kb = new ArrayList<Klause>();
+        kb = new ArrayList<Clause>();
         System.out.println("create knowledge base!");
     }
 
-    public void addKnowledge(Klause k) {
+    // Add fact to knowledge base
+    public void addKnowledge(Clause k) {
         kb.add(k);
     }
 
+    // print the entire knowledge base
     public void printKnowledgeBase()
     {
         //System.out.println("The knowledge base!");
@@ -22,29 +26,43 @@ public class knowledgeBase
 
     }
 
+    // solve the resolution if possible
     public void solve() {
 
-        Klause tempKlause;
-        for (int j = 0; j < kb.size(); j++) {
+        Clause tempClause;
+        int j = 0;
+        while (j != kb.size()) {
             for (int i = j+1; i < kb.size(); i++) {
 
-                kb.get(j).compare(kb.get(i));
+                tempClause = kb.get(j).solveClause(kb.get(i));
+                System.out.println("solving");
+                kb.get(i).print();
+                kb.get(j).print();
+                if (tempClause != null && !ClauseExists(tempClause)) {
 
-               
+                    addKnowledge(tempClause);
+
+                    System.out.println("add new clause");
+                    tempClause.print();
+                    j = -1;
+                    break;
+                }
+
             }
+
+            j++;
         }
     }
 
-    public boolean KlauseExists(Klause k) {
+    // check if Clause already exists in knowledge base
+    public boolean ClauseExists(Clause k) {
 
-        boolean isFound = false;
+
         for ( int i = 0; i < kb.size(); i++) {
             if (kb.get(i).compare(k))
-                isFound = true;
+                return true;
         }
 
-        return isFound;
+        return false;
     }
-    
-    
 }

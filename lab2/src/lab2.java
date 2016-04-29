@@ -8,30 +8,38 @@ public class lab2 {
         //create knowledge base
         knowledgeBase kb = new knowledgeBase();
         Scanner reader = new Scanner(System.in);
-        String klause;
-        Klause k;
 
+        String clause;
+        Clause c;
+/*
         while (true) {
-            System.out.println("enter new klause: ");
-            klause = reader.nextLine();
+            System.out.println("enter new clause: ");
+            clause = reader.nextLine();
 
-            if(klause.equals("stop"))
+            if(clause.equals("stop"))
                 break;
-            k = new Klause(klause);
-            kb.addKnowledge(k);
+            c = new Clause(clause);
+            kb.addKnowledge(c);
         }
+*/
+
+        Clause clause1 = new Clause("+A+B");
+        Clause clause2 = new Clause("+B+C");
+        Clause clause3 = new Clause("-A-B");
+        Clause clause4 = new Clause("-A-C");
+        Clause clause5 = new Clause("-B-C");
+
+        kb.addKnowledge(clause1);
+        kb.addKnowledge(clause2);
+        kb.addKnowledge(clause3);
+        kb.addKnowledge(clause4);
+        kb.addKnowledge(clause5);
+
 
         System.out.println("knowledge base before!");
         kb.printKnowledgeBase();
         kb.solve();
 
-        /*
-        Klause klause1 = new Klause("+A+B");
-        Klause klause2 = new Klause("+D-A");
-
-        kb.addKnowledge(klause1);
-        kb.addKnowledge(klause2);
-*/
         System.out.println("knowledge base after!");
         kb.printKnowledgeBase();
         

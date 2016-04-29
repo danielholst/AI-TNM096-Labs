@@ -8,20 +8,16 @@ public class Literal {
     private char value;
     private boolean isTrue;
 
+    // Constructor
     public Literal(char v, boolean t) {
         value = v;
         isTrue = t;
     }
 
-    public String print() {
-        if(isTrue)
-            return ("+" + value);
-        else
-            return ("-" + value);
-    }
-
+    // return value
     public char getValue() { return value; }
 
+    // return if value is true
     public boolean getIsTrue() { return isTrue; }
 
 
