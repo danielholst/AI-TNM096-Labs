@@ -20,6 +20,11 @@ public class lab2 {
             k = new Klause(klause);
             kb.addKnowledge(k);
         }
+
+        System.out.println("knowledge base before!");
+        kb.printKnowledgeBase();
+        kb.solve();
+
         /*
         Klause klause1 = new Klause("+A+B");
         Klause klause2 = new Klause("+D-A");
@@ -27,6 +32,7 @@ public class lab2 {
         kb.addKnowledge(klause1);
         kb.addKnowledge(klause2);
 */
+        System.out.println("knowledge base after!");
         kb.printKnowledgeBase();
         
         

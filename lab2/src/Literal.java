@@ -13,12 +13,17 @@ public class Literal {
         isTrue = t;
     }
 
-    public String getLiteral() {
+    public String print() {
         if(isTrue)
             return ("+" + value);
         else
             return ("-" + value);
     }
+
+    public char getValue() { return value; }
+
+    public boolean getIsTrue() { return isTrue; }
+
 
 
 }

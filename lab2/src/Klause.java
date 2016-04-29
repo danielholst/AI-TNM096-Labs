@@ -19,9 +19,31 @@ public class Klause
         }
     }
 
+    public ArrayList<Literal> getLiterals() {
+        return literals;
+    }
+
+    public boolean compare( Klause k) {
+
+        for (int i = 0; i < literals.size(); i++) {
+            boolean found = false;
+            for (int j = 0; j < literals.size(); j++) {
+
+                if (literals.get(i).getValue() == k.getLiterals().get(j).getValue()) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public void print() {
         for (int i = 0; i < literals.size(); i++) {
-            System.out.println(literals.get(i).getLiteral());
+            System.out.println(literals.get(i).print());
         }
     }
 }
