@@ -29,6 +29,13 @@ public:
     int countManhattan() const;
     bool checkBoard() const;
     
+    bool operator<(const State& s) const
+    {
+        return (this->countManhattan()+this->getMoves()) < (s.countManhattan() + s.getMoves());
+    }
+    
+    bool operator==(const State& s) const { return this->compare(s); }
+    
 private:
     vector<int> currentState_;
     int prevZero_;
@@ -195,9 +202,11 @@ bool solve(State state)
     cout << "number of correct boards from beginning: " << 8 - state.countH1() << endl;
     vector<int> possibleMoves;
     vector<State> visitedStates;
-    priority_queue<State, vector<State>, cmpH1> q;
+    priority_queue<State, vector<State>, cmpManhattan> q;
     int checkedStates = 0;
     q.push(state);
+    
+    make_heap( visitedStates.begin(), visitedStates.end());
     
     while ( !q.empty() )
     {
@@ -208,7 +217,7 @@ bool solve(State state)
         
         //cout << "=======================" << endl;
         //cout << "0 at pos: " << currentState.getZeroPos() << endl;
-        //cout << "nr of correct blocks: " << currentState.countH1() << endl;
+        //cout << "nr of correct blocks: " << 8 - currentState.countH1() << endl;
         //printVec(currentState.getBoard());
         
         // check if correct board
@@ -218,6 +227,8 @@ bool solve(State state)
             cout << "number of checked states: " << checkedStates << endl;
             break;
         }
+
+        sort_heap(visitedStates.begin(), visitedStates.end());
         
         //find possible moves
         possibleMoves = findMoves(currentState);
@@ -228,7 +239,11 @@ bool solve(State state)
             vector<int> board = currentState.getBoard();
             swap(board.at(i), board.at(currentState.getZeroPos()));
             State newState { board, currentState.getZeroPos(), currentState.getMoves()+1 };
+
             
+            if (find(visitedStates.begin(), visitedStates.end(), newState) != visitedStates.end())
+                continue;
+            /*
             for ( auto i : visitedStates )
             {
                 if ( i.compare(newState) )
@@ -236,7 +251,9 @@ bool solve(State state)
                     continue;
                 }
             }
+             */
             q.push(newState);
+            push_heap(visitedStates.begin(),visitedStates.end());
         }
     }
     return true;
@@ -245,14 +262,16 @@ bool solve(State state)
 //main function
 int main()
 {
-    vector<int> startBoard { 2, 5, 0, 1, 4, 8, 7, 3, 6 };
+//    vector<int> startBoard { 2, 5, 0, 1, 4, 8, 7, 3, 6 };
+//    vector<int> startBoard {8,6,7,5,0,4,3,1,2};
+    vector<int> startBoard {1,2,3,4,6,8,7,5,0};
     /*
      * 2 5 0
      * 1 4 8
      * 7 3 6
      */
     
-    State state { startBoard, 3, 0 };
+    State state { startBoard, 5 };
     solve(state);
     
     return 0;
