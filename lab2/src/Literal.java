@@ -20,6 +20,12 @@ public class Literal {
     // return if value is true
     public boolean getIsTrue() { return isTrue; }
 
+    // check if two literals complement
+    public boolean isComplement(Literal l) {
 
-
+        if (value == l.getValue() && isTrue != l.getIsTrue())
+            return true;
+        else
+            return false;
+    }
 }

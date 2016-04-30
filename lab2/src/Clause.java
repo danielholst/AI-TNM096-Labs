@@ -31,10 +31,11 @@ public class Clause
         char toRemove = '-';
         boolean foundToRemove = false;
 
+        if (checkSame(c)) return null;
+
         for (int i = 0; i < literals.size(); i++) {
             for (int j = 0; j < c.literals.size(); j++) {
-                if (literals.get(i).getValue() == c.getLiterals().get(j).getValue())
-                    if (literals.get(i).getIsTrue() != c.getLiterals().get(j).getIsTrue()) {
+                if (literals.get(i).isComplement(c.getLiterals().get(j))) {
                         toRemove = literals.get(i).getValue();
                         foundToRemove = true;
                     }
@@ -63,6 +64,26 @@ public class Clause
             return new Clause(res);
         }
         return null;
+    }
+
+    // check if two clauses has same values
+    public boolean checkSame(Clause c) {
+
+        if (literals.size() != c.getLiterals().size()) return false;
+
+        int nrOfComp = 0;
+        for (int i = 0; i < literals.size(); i++) {
+            for (int j = 0; j < c.getLiterals().size(); j++) {
+
+                if (literals.get(i).isComplement(c.getLiterals().get(j))) {
+                    nrOfComp++;
+                }
+            }
+        }
+        //System.out.println("size = " + literals.size() + " , nrOfComp = " + nrOfComp);
+
+        if (nrOfComp == literals.size()) return true;
+        else return false;
     }
 
     // compare two clauses and return if the same
