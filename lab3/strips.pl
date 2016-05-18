@@ -1,37 +1,63 @@
-% STRIPS planner
+% STRIPS planner with iterative deepening
+% if no solution is found at a certain level, the level is increased by 1
 
 plan :-
 initial_state(IS),
 goal_state(GS),
-solve(IS,GS,[],Plan),
+increase(Level),
+write('Level '),Level1 is Level+1,writeNLNL(Level1),
+solve(IS,GS,[],Plan,0,Level),
 printPlan(Plan).
 
 
-% if Goal is a subset of State, then return Plan
-solve(State, Goal, Plan, Plan):- is_subset(Goal, State).
+% Planner with a max depth level
+plan(MaxL) :-
+initial_state(IS),
+goal_state(GS),
+increase(Level),
+( Level = MaxL,
+!,
+writeNL('Solution not found')
+;
+write('Level '),Level1 is Level+1,writeNLNL(Level1),
+solve(IS,GS,[],Plan,0,Level),
+printPlan(Plan)
+).
 
-% otherwise, select next action and move to the next state
-solve(State, Goal, Sofar, Plan):-
+
+% if Goal is a subset of State, then return Plan
+solve(State, Goal, Plan, Plan, _, _):-
+is_subset(Goal, State), !.
+
+% otherwise, select next action. increase the counter and move to the next state
+solve(State, Goal, Sofar, Plan, Counter, Level):-
+Counter =< Level,
 act(Action, Precons, Delete, Add),
 is_subset(Precons, State),
-writeNLNL(Sofar),
-\+ member(Action, Sofar),    % negation as failure
+\+ member(Action, Sofar),      % negation as failure
 delete_list(Delete, State, Remainder),
 add_list(Add, Remainder, NewState),
-solve(NewState, Goal, [Action|Sofar], Plan).
+NewCounter is Counter+1,
+solve(NewState, Goal, [Action|Sofar], Plan, NewCounter, Level).
 
 
 
 % AUXILIARY
 
+increase(0).
+increase(X) :- increase(Y), X is Y+1.
+
 % Check is first list is a subset of the second
 is_subset([], _).
+is_subset([diff(A,B)|T], Set):- !, \+ A=B, is_subset(T, Set).
 is_subset([H|T], Set):- member(H, Set), is_subset(T, Set).
 
+
 printPlan(Plan) :-
-writeNL('--- One Plan ---'),
+length(Plan, Length),
+write('----- A Plan (length '), write(Length), writeNL(')'),
 printPlan2(Plan),
-writeNL('-----------------').
+writeNL('-------------------------').
 
 printPlan2([]).
 printPlan2([H|T]):- printPlan2(T), writeNL(H).
