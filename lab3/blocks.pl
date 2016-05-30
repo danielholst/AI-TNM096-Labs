@@ -1,51 +1,66 @@
 % Blocks World
 
-% actions
-act( pick_from_table(X),
-[block(X), handempty,  clear(X), on(X, table)],  % preconditions
-[handempty, on(X, table)],                       % delete
-[holding(X)]                                     % add
-).
+:- use_module(library(clpfd)).
 
-act( pickup_from_block(X, Y),
-[block(X), handempty, clear(X), on(X, Y), block(Y), diff(X, Y)],  % (1)
-[handempty, on(X, Y)],
-[holding(X), clear(Y)]
-).
-% (1)  diff(X,Y) is needed to prevent cases like pickup_from_block(a,a)
+pickable(X) :- X in 1..6.
+block(X) :- X in 2..4 \/ 6.
+triangle(X) :- X in 1 \/ 5.
+table(X) :- X in 7.
+
+blue(X) :- X in 3 \/ 6.
+green(X) :- X in 2 \/ 5.
+red(X) :- X in 1 \/ 4.
+
+act( pickup_from_table(X),
+    [gripEmpty, onTop(X), on(X, 7)],
+    [gripEmpty, on(X, 7)],
+    [holding(X)]
+    ):-
+pickable(X).
+
+act( pickup_from_block(X,Y),
+    [gripEmpty, onTop(X), on(X, Y)],
+    [gripEmpty, on(X, Y)],
+    [holding(X), onTop(Y)]
+    ):-
+pickable(X).
 
 act( putdown_on_table(X),
-[block(X), holding(X)],
-[holding(X)],
-[handempty, on(X, table)]
-).
+    [holding(X)],
+    [holding(X)],
+    [gripEmpty, on(X,7)]
+    ):-
+pickable(X).
 
-act(  putdown_on_block(X, Y),
-[block(X), holding(X), block(Y), clear(Y), diff(X, Y)],
-[holding(X), clear(Y)],
-[handempty, on(X, Y)]
-).
+act( putdown_on_block(X, Y),
+    [onTop(Y), holding(X)],
+    [onTop(Y), holding(X)],
+    [gripEmpty, on(X,Y)]
+    ):-
+pickable(X),
+block(Y).
 
 
-goal_state( [on(c,b),on(a,c) ]).
+goal_state([
+    on(X, Y),
+    on(Y,Z),
+    on(Z,7)
+    ]):-
+green(Y),
+blue(Z).
 
-initial_state(
-[      clear(b),
-clear(c),
-on(c,a),
-on(a,table),
-on(b,table),
-handempty,
-block(a),
-block(b),
-block(c),
-diff(a,b),
-diff(a,c),
-diff(b,a),
-diff(b,c),
-diff(c,a),
-diff(c,b),
-diff(a,table),
-diff(b,table),
-diff(c,table)
+initial_state([
+    gripEmpty,
+    on(1,7),
+    on(2,7),
+    on(4,7),
+    on(6,7),
+    on(3,4),
+    on(5,6),
+
+    onTop(1),
+    onTop(2),
+    onTop(3),
+    onTop(5)
+
 ]).

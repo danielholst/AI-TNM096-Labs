@@ -22,28 +22,26 @@ public class lab2 {
             kb.addKnowledge(c);
         }
 */
-
-        Clause clause1 = new Clause("+A+B");
-        Clause clause2 = new Clause("+B+C");
-        Clause clause3 = new Clause("-A-B");
-        Clause clause4 = new Clause("-A-C");
-        Clause clause5 = new Clause("-B-C");
+        Clause clause1 = new Clause("-A+B+C");
+        Clause clause2 = new Clause("+A");
+        Clause clause3 = new Clause("-B-D");
+        Clause clause4 = new Clause("+D+B");
+        //Clause clause5 = new Clause("-B-C");
 
         kb.addKnowledge(clause1);
         kb.addKnowledge(clause2);
         kb.addKnowledge(clause3);
         kb.addKnowledge(clause4);
-        kb.addKnowledge(clause5);
+        //kb.addKnowledge(clause5);
 
 
         System.out.println("knowledge base before!");
         kb.printKnowledgeBase();
+
         kb.solve();
 
         System.out.println("knowledge base after!");
         kb.printKnowledgeBase();
-        
-        
-        
+
     }
 }
